@@ -26,6 +26,12 @@ class CommonBaseClient(object):
             self.method_kwargs['auth'] = (username, password)
         if api_timeout is not None:
             self.method_kwargs['timeout'] = api_timeout
+        if header is not None:
+            self.header = header
+        else:
+            self.header = {}
+
+        self.header.update( {'content-type': 'application/json' } )
 
     def _http_response(self, url, method, data=None, **kwargs):
         """url -> full target url
@@ -33,17 +39,12 @@ class CommonBaseClient(object):
            data -> request body
            kwargs -> url formatting args
         """
-        if header is None:
-           header = {'content-type': 'application/json' }
-        else:
-           header.update( {'content-type': 'application/json' } )
-
         if data:
             data = json.dumps(data)
         path = url.format(**kwargs)
         logger.debug("%s %s", method.__name__.upper(), path)
         response = method(self.host + path,
-                          data=data, headers=header, **self.method_kwargs)
+                          data=data, headers=self.header, **self.method_kwargs)
         logger.debug("%s %s", response.status_code, response.reason)
         response.raise_for_status()
 
@@ -273,23 +274,23 @@ class BaseClientV2(CommonBaseClient):
 
 
 def BaseClient(host, verify_ssl=None, api_version=None, username=None,
-               password=None, auth_service_url="", api_timeout=None):
+               password=None, auth_service_url="", api_timeout=None, header=None):
     if api_version == 1:
         return BaseClientV1(
             host, verify_ssl=verify_ssl, username=username, password=password,
-            api_timeout=api_timeout,
+            api_timeout=api_timeout, header=header
         )
     elif api_version == 2:
         return BaseClientV2(
             host, verify_ssl=verify_ssl, username=username, password=password,
-            auth_service_url=auth_service_url, api_timeout=api_timeout,
+            auth_service_url=auth_service_url, api_timeout=api_timeout, header=header
         )
     elif api_version is None:
         # Try V2 first
         logger.debug("checking for v2 API")
         v2_client = BaseClientV2(
             host, verify_ssl=verify_ssl, username=username, password=password,
-            auth_service_url=auth_service_url, api_timeout=api_timeout,
+            auth_service_url=auth_service_url, api_timeout=api_timeout, header=header
         )
         try:
             v2_client.check_status()
@@ -298,7 +299,7 @@ def BaseClient(host, verify_ssl=None, api_version=None, username=None,
                 logger.debug("falling back to v1 API")
                 return BaseClientV1(
                     host, verify_ssl=verify_ssl, username=username,
-                    password=password, api_timeout=api_timeout,
+                    password=password, api_timeout=api_timeout,header=header
                 )
 
             raise
