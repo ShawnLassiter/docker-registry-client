@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 class CommonBaseClient(object):
     def __init__(self, host, verify_ssl=None, username=None, password=None,
-                 api_timeout=None):
+                 api_timeout=None, header=None):
         self.host = host
 
         self.method_kwargs = {}
@@ -33,7 +33,10 @@ class CommonBaseClient(object):
            data -> request body
            kwargs -> url formatting args
         """
-        header = {'content-type': 'application/json'}
+        if header is None:
+           header = {'content-type': 'application/json' }
+        else:
+           header.update( {'content-type': 'application/json' } )
 
         if data:
             data = json.dumps(data)

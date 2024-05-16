@@ -6,7 +6,7 @@ from .Repository import Repository
 
 class DockerRegistryClient(object):
     def __init__(self, host, verify_ssl=None, api_version=None, username=None,
-                 password=None, auth_service_url="", api_timeout=None):
+                 password=None, auth_service_url="", api_timeout=None, header=None):
         """
         Constructor
 
@@ -19,13 +19,15 @@ class DockerRegistryClient(object):
         :param auth_service_url: authorization service URL (including scheme,
           for v2 only)
         :param api_timeout: timeout for external request
+        :param header: dictionary of additional headers to send, such as api authentication tokens
         """
 
         self._base_client = BaseClient(host, verify_ssl=verify_ssl,
                                        api_version=api_version,
                                        username=username, password=password,
                                        auth_service_url=auth_service_url,
-                                       api_timeout=api_timeout)
+                                       api_timeout=api_timeout,
+                                       header=header)
         self.api_version = self._base_client.version
         self._repositories = {}
         self._repositories_by_namespace = {}
