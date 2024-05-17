@@ -243,9 +243,10 @@ class BaseClientV2(CommonBaseClient):
         header = self.header
         header.update( {
             'content-type': content_type or 'application/json',
-            'Accept': schema,
+        #    'Accept': schema,
         })
-        print(header) 
+
+        #print(header) 
 
         # Token specific part. We add the token in the header if necessary
         auth = self.auth
