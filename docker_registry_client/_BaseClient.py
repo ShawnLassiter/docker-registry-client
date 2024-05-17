@@ -240,11 +240,12 @@ class BaseClientV2(CommonBaseClient):
 
         if schema is None:
             schema = self.schema_2
-
-        header = {
+        header = self.header
+        header.update( {
             'content-type': content_type or 'application/json',
             'Accept': schema,
-        }
+        })
+       
 
         # Token specific part. We add the token in the header if necessary
         auth = self.auth
